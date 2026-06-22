@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍅 番茄钟</title>
+<style>
+/* ═══════════════════════════════════════════
+   中国传统鲜艳配色主题 — 4 套 Design Token
+   ═══════════════════════════════════════════ */
+
+:root, [data-theme="cinnabar"] {
+  --work-main:       #D9332A;
+  --work-light:      #FFF0EF;
+  --work-subtle:     #FFD6D2;
+  --work-text:       #B81A14;
+  --work-ring-bg:    #FFE0DD;
+  --short-main:      #1CA363;
+  --short-light:     #EDF9F3;
+  --short-subtle:    #C8F0DB;
+  --short-text:      #147A48;
+  --short-ring-bg:   #D4F0E2;
+  --long-main:       #3B6FF5;
+  --long-light:      #EEF3FF;
+  --long-subtle:     #D3DFFF;
+  --long-text:       #1F4FC8;
+  --long-ring-bg:    #DDE6FF;
+  --bg:              #FFF9F8;
+  --card:            #FFFFFF;
+  --text:            #3D1F1A;
+  --text-secondary:  #8A6E68;
+  --muted:           #B8958D;
+  --border:          #F0DDD6;
+  --surface:         #FFFCFB;
+  --btn-secondary:   #FFF0ED;
+  --shadow:          0 6px 40px rgba(180,120,100,0.10);
+  --accent:          #D9332A;
+}
+
+[data-theme="crabapple"] {
+  --work-main:       #E8385A;
+  --work-light:      #FFF0F4;
+  --work-subtle:     #FFD3DE;
+  --work-text:       #C41E40;
+  --work-ring-bg:    #FFDEE6;
+  --short-main:      #20A87A;
+  --short-light:     #EDF9F5;
+  --short-subtle:    #C6F0E2;
+  --short-text:      #15805C;
+  --short-ring-bg:   #D2F0E5;
+  --long-main:       #5B7FF5;
+  --long-light:      #EFF3FF;
+  --long-subtle:     #D6E0FF;
+  --long-text:       #3A5ED0;
+  --long-ring-bg:    #E0E7FF;
+  --bg:              #FFFAFB;
+  --card:            #FFFFFF;
+  --text:            #3D1F28;
+  --text-secondary:  #8A6A74;
+  --muted:           #B8959C;
+  --border:          #F0DDE2;
+  --surface:         #FFFCFD;
+  --btn-secondary:   #FFF0F3;
+  --shadow:          0 6px 40px rgba(180,120,140,0.10);
+  --accent:          #E8385A;
+}
+
+[data-theme="jade"] {
+  --work-main:       #1DA068;
+  --work-light:      #EDF9F3;
+  --work-subtle:     #C8F0DD;
+  --work-text:       #127A4D;
+  --work-ring-bg:    #D2F0E2;
+  --short-main:      #E8982E;
+  --short-light:     #FFF7ED;
+  --short-subtle:    #FFE8CC;
+  --short-text:      #C07818;
+  --short-ring-bg:   #FFE8D0;
+  --long-main:       #4B8AF0;
+  --long-light:      #EEF4FF;
+  --long-subtle:     #D2E2FF;
+  --long-text:       #2C68D0;
+  --long-ring-bg:    #DCE8FF;
+  --bg:              #F7FCF9;
+  --card:            #FFFFFF;
+  --text:            #1F3D2E;
+  --text-secondary:  #6A8A78;
+  --muted:           #95B5A2;
+  --border:          #DDF0E5;
+  --surface:         #F9FDFB;
+  --btn-secondary:   #EDF7F1;
+  --shadow:          0 6px 40px rgba(100,160,130,0.10);
+  --accent:          #1DA068;
+}
+
+[data-theme="glaze"] {
+  --work-main:       #4B70F0;
+  --work-light:      #EEF2FF;
+  --work-subtle:     #D3DDFF;
+  --work-text:       #2C50D0;
+  --work-ring-bg:    #DDE5FF;
+  --short-main:      #20A870;
+  --short-light:     #EDF9F4;
+  --short-subtle:    #C6F0DF;
+  --short-text:      #148058;
+  --short-ring-bg:   #D2F0E3;
+  --long-main:       #E8783A;
+  --long-light:      #FFF5EE;
+  --long-subtle:     #FFE3D0;
+  --long-text:       #C0581E;
+  --long-ring-bg:    #FFE5D5;
+  --bg:              #F7F9FD;
+  --card:            #FFFFFF;
+  --text:            #1F2B3D;
+  --text-secondary:  #6A758A;
+  --muted:           #95A0B5;
+  --border:          #DDE3F0;
+  --surface:         #F9FBFE;
+  --btn-secondary:   #EDF1F7;
+  --shadow:          0 6px 40px rgba(100,120,180,0.10);
+  --accent:          #4B70F0;
+}
+
+/* ═══════════════════════════════════════════
+   全局样式
+   ═══════════════════════════════════════════ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  user-select: none;
+  -webkit-user-select: none;
+  transition: background 0.5s ease;
+}
+
+/* ── 阶段背景微调 ── */
+body.is-work       { background: linear-gradient(160deg, var(--work-light), var(--bg) 50%, #fafbfd); }
+body.is-shortBreak { background: linear-gradient(160deg, var(--short-light), var(--bg) 50%, #fafbfd); }
+body.is-longBreak  { background: linear-gradient(160deg, var(--long-light), var(--bg) 50%, #fafbfd); }
+
+/* ── 卡片 ── */
+.card {
+  background: var(--card);
+  border-radius: 30px;
+  box-shadow: var(--shadow);
+  padding: 44px 48px 36px;
+  width: 440px;
+  max-width: 94vw;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: border-radius 0.4s ease, box-shadow 0.4s ease;
+}
+
+/* 顶部色条 */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 5px;
+  background: var(--work-main);
+  transition: background 0.4s ease, height 0.3s ease;
+}
+.is-shortBreak .card::before { background: var(--short-main); }
+.is-longBreak  .card::before { background: var(--long-main); }
+
+/* 阶段完成脉冲 */
+.card.glow::before { height: 7px; filter: brightness(1.3); }
+.card.glow { box-shadow: 0 6px 50px rgba(217,51,42,0.18); }
+
+/* ── 模式标签胶囊 ── */
+.mode-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 18px;
+  border-radius: 22px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  margin-bottom: 8px;
+  transition: all 0.35s ease;
+}
+.mode-tag.work       { background: var(--work-subtle); color: var(--work-text); }
+.mode-tag.shortBreak { background: var(--short-subtle); color: var(--short-text); }
+.mode-tag.longBreak  { background: var(--long-subtle); color: var(--long-text); }
+
+.progress-hint {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin-bottom: 8px;
+  transition: color 0.4s ease;
+}
+
+/* ── 环形进度 ── */
+.ring-wrap {
+  position: relative;
+  width: 250px; height: 250px;
+  margin: 0 auto 12px;
+}
+.ring-svg {
+  transform: rotate(-90deg);
+  width: 250px; height: 250px;
+}
+.ring-bg {
+  fill: none;
+  stroke: #EAE8E5;
+  stroke-width: 10;
+  transition: stroke 0.4s ease;
+}
+.ring-fg {
+  fill: none;
+  stroke: var(--work-main);
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.35s ease, stroke 0.4s ease;
+}
+.is-shortBreak .ring-fg { stroke: var(--short-main); }
+.is-longBreak  .ring-fg { stroke: var(--long-main); }
+
+.ring-dot {
+  fill: var(--work-main);
+  transition: fill 0.4s ease, r 0.2s ease;
+}
+.is-shortBreak .ring-dot { fill: var(--short-main); }
+.is-longBreak  .ring-dot { fill: var(--long-main); }
+
+.time-center {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.time-digits {
+  font-size: 56px;
+  font-weight: 700;
+  letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+  font-family: 'SF Mono', 'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace;
+  color: var(--text);
+  line-height: 1;
+  transition: color 0.4s ease;
+}
+.time-unit {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: color 0.4s ease;
+}
+
+/* ── 番茄进度 ── */
+.tomato-row {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 10px 0 16px;
+  font-size: 20px;
+  line-height: 1;
+  transition: gap 0.3s ease;
+}
+.tomato-row span {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: grayscale(0.85) opacity(0.30);
+}
+.tomato-row span.earned {
+  filter: none;
+  animation: tomatoPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes tomatoPop {
+  0%   { transform: scale(0) rotate(-20deg); }
+  55%  { transform: scale(1.4) rotate(4deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+/* ── 按钮 ── */
+.btn-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+button {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 16px;
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: all 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+button:active { transform: scale(0.94); }
+
+.btn-main {
+  min-width: 136px;
+  padding: 13px 30px;
+  font-size: 16px;
+  color: #fff;
+  background: var(--work-main);
+  letter-spacing: 0.5px;
+  border-radius: 18px;
+  box-shadow: 0 5px 22px rgba(217,51,42,0.30);
+  transition: all 0.3s ease;
+}
+.btn-main:hover { filter: brightness(1.10); box-shadow: 0 8px 30px rgba(217,51,42,0.42); transform: translateY(-1px); }
+.is-shortBreak .btn-main { background: var(--short-main); box-shadow: 0 5px 22px rgba(28,163,99,0.30); }
+.is-shortBreak .btn-main:hover { box-shadow: 0 8px 30px rgba(28,163,99,0.42); }
+.is-longBreak  .btn-main { background: var(--long-main); box-shadow: 0 5px 22px rgba(59,111,245,0.30); }
+.is-longBreak  .btn-main:hover { box-shadow: 0 8px 30px rgba(59,111,245,0.42); }
+
+.btn-aux {
+  width: 44px; height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--btn-secondary);
+  color: var(--muted);
+  font-size: 17px;
+  transition: all 0.2s ease;
+}
+.btn-aux:hover { background: var(--border); color: var(--text); transform: scale(1.06); }
+
+/* ── 设置 ── */
+.btn-cog {
+  background: none;
+  color: var(--muted);
+  font-size: 18px;
+  padding: 4px 10px;
+  border-radius: 10px;
+  margin-top: 16px;
+  opacity: 0.5;
+  transition: all 0.2s ease;
+}
+.btn-cog:hover { opacity: 1; background: var(--btn-secondary); }
+
+.panel {
+  display: none;
+  margin-top: 16px;
+  padding: 20px 22px;
+  background: var(--surface);
+  border-radius: 18px;
+  text-align: left;
+  border: 1px solid var(--border);
+  animation: panelIn 0.28s ease;
+}
+.panel.open { display: block; }
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.panel-section {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--muted);
+  padding: 10px 0 4px 2px;
+}
+.panel-section:first-child { padding-top: 0; }
+
+.panel label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+.panel input[type="number"] {
+  width: 64px;
+  padding: 6px 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 14px;
+  text-align: center;
+  background: var(--card);
+  color: var(--text);
+  transition: border-color 0.2s ease;
+}
+.panel input[type="number"]:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* ── Toggle 开关 ── */
+.toggle {
+  position: relative;
+  width: 46px; height: 28px;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle .track {
+  position: absolute; inset: 0;
+  background: #d1d5db;
+  border-radius: 28px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+.toggle .track::after {
+  content: '';
+  position: absolute;
+  width: 22px; height: 22px;
+  left: 3px; top: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+.toggle input:checked + .track { background: var(--accent); }
+.toggle input:checked + .track::after { transform: translateX(18px); }
+
+/* ── 主题选择器 ── */
+.theme-swatches {
+  display: flex;
+  gap: 8px;
+  padding: 6px 0 2px;
+}
+.theme-swatch {
+  width: 40px; height: 28px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.25s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+.theme-swatch:hover { transform: scale(1.08); }
+.theme-swatch.active { border-color: var(--text); box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--text); }
+.theme-swatch::after {
+  content: attr(data-check);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.theme-swatch.active::after { opacity: 1; }
+
+/* ── 底部统计 ── */
+.stats {
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+  transition: color 0.4s ease;
+}
+
+/* ── 响应式 ── */
+@media (max-width: 480px) {
+  .card { padding: 30px 20px 26px; border-radius: 24px; width: 96vw; }
+  .ring-wrap, .ring-svg { width: 210px; height: 210px; }
+  .time-digits { font-size: 44px; }
+  .btn-main { min-width: 118px; padding: 11px 24px; font-size: 15px; }
+  .theme-swatch { width: 34px; height: 24px; }
+}
+</style>
+</head>
+<body class="is-work" data-theme="cinnabar">
+
+<div class="card" id="cardEl">
+  <!-- Mode -->
+  <div class="mode-tag work" id="modeTag">🔴 专注工作</div>
+  <div class="progress-hint" id="progressHint">第 1 / 4 个番茄</div>
+
+  <!-- Ring timer -->
+  <div class="ring-wrap">
+    <svg class="ring-svg" viewBox="0 0 250 250">
+      <circle class="ring-bg" cx="125" cy="125" r="114"/>
+      <circle class="ring-fg" id="ringFg" cx="125" cy="125" r="114"
+              stroke-dasharray="716.283" stroke-dashoffset="0"/>
+      <circle class="ring-dot" id="ringDot" cx="125" cy="11" r="0"
+              style="display:none"/>
+    </svg>
+    <div class="time-center">
+      <div class="time-digits" id="timeDigits">25:00</div>
+      <div class="time-unit" id="timeUnit">分钟</div>
+    </div>
+  </div>
+
+  <!-- Tomato counter -->
+  <div class="tomato-row" id="tomatoRow"></div>
+
+  <!-- Controls -->
+  <div class="btn-row">
+    <button class="btn-aux" id="btnReset" title="重置 (R)">↺</button>
+    <button class="btn-main" id="btnPlay">▶ 开始</button>
+    <button class="btn-aux" id="btnSkip" title="跳过 (S)">⏭</button>
+  </div>
+
+  <!-- Settings -->
+  <button class="btn-cog" id="btnCog" title="设置">⚙</button>
+  <div class="panel" id="panel">
+    <div class="panel-section">计时</div>
+    <label>工作时间（分钟）<input type="number" id="cfgWork" min="1" max="120" value="25"></label>
+    <label>短休息（分钟）<input type="number" id="cfgShort" min="1" max="30" value="5"></label>
+    <label>长休息（分钟）<input type="number" id="cfgLong" min="1" max="60" value="15"></label>
+    <label>长休间隔（个番茄）<input type="number" id="cfgInterval" min="2" max="10" value="4"></label>
+
+    <div class="panel-section">提醒</div>
+    <label>桌面通知
+      <span class="toggle"><input type="checkbox" id="cfgNotify" checked><span class="track"></span></span>
+    </label>
+    <label>提示音
+      <span class="toggle"><input type="checkbox" id="cfgSound" checked><span class="track"></span></span>
+    </label>
+
+    <div class="panel-section">外观</div>
+    <div class="theme-swatches" id="themeSwatches">
+      <div class="theme-swatch active" data-theme="cinnabar" data-check="✓" style="background:#D9332A" title="朱砂红"></div>
+      <div class="theme-swatch" data-theme="crabapple" data-check="✓" style="background:#E8385A" title="海棠红"></div>
+      <div class="theme-swatch" data-theme="jade" data-check="✓" style="background:#1DA068" title="翠微绿"></div>
+      <div class="theme-swatch" data-theme="glaze" data-check="✓" style="background:#4B70F0" title="琉璃蓝"></div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats" id="statsLine">今日完成 0 个番茄</div>
+</div>
+
+<script>
+// ═══════════════════════════════════
+//  Pomodoro Timer — Web Edition v4.0
+// ═══════════════════════════════════
+
+const R = 114;
+const CIRC = 2 * Math.PI * R; // ~716.283
+
+// ── 主题映射 ──
+const THEME_IDS = ['cinnabar','crabapple','jade','glaze'];
+const OLD_TO_NEW = { 'misty_rose':'cinnabar', 'celadon':'jade', 'dusk_blue':'glaze', 'warm_sand':'crabapple' };
+
+// ── Persistent config ──
+const cfg = {
+  work:      25,
+  short:      5,
+  long:      15,
+  interval:   4,
+  notify:  true,
+  sound:   true,
+  theme:   'cinnabar',
+};
+
+(function loadCfg() {
+  try {
+    const raw = localStorage.getItem('pomodoro-cfg');
+    if (raw) Object.assign(cfg, JSON.parse(raw));
+  } catch (_) {}
+  // 兼容旧主题名
+  if (OLD_TO_NEW[cfg.theme]) cfg.theme = OLD_TO_NEW[cfg.theme];
+  if (!THEME_IDS.includes(cfg.theme)) cfg.theme = 'cinnabar';
+})();
+
+function saveCfg() {
+  localStorage.setItem('pomodoro-cfg', JSON.stringify(cfg));
+}
+
+// ── Runtime state ──
+const S = {
+  mode:     'work',
+  running:  false,
+  total:    25 * 60,
+  remain:   25 * 60,
+  today:    0,
+  cycle:    0,
+  tid:      null,
+  pomodoroCompletedThisTick: false,
+};
+
+(function loadToday() {
+  const key = `pomodoro-${ymd()}`;
+  S.today = parseInt(localStorage.getItem(key) || '0', 10);
+})();
+
+function saveToday() {
+  localStorage.setItem(`pomodoro-${ymd()}`, String(S.today));
+}
+
+function ymd() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+// ── DOM refs ──
+const $ = (id) => document.getElementById(id);
+const body   = document.body;
+const cardEl = $('cardEl');
+const ringFg = $('ringFg');
+const ringDot= $('ringDot');
+const digits = $('timeDigits');
+const unit   = $('timeUnit');
+const tag    = $('modeTag');
+const hint   = $('progressHint');
+const toRow  = $('tomatoRow');
+const btnPlay= $('btnPlay');
+const stats  = $('statsLine');
+
+// ── Theme ──
+function applyTheme(id) {
+  cfg.theme = id;
+  body.setAttribute('data-theme', id);
+  saveCfg();
+  document.querySelectorAll('.theme-swatch').forEach(el => {
+    el.classList.toggle('active', el.dataset.theme === id);
+  });
+}
+
+// ── Audio (crisp chime C6→E6→G6) ──
+let ctx = null;
+function ac() {
+  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+  if (ctx.state === 'suspended') ctx.resume();
+  return ctx;
+}
+
+function beep(f, dur, gain = 0.15, delay = 0) {
+  if (!cfg.sound) return;
+  try {
+    const a = ac();
+    const t = a.currentTime + delay;
+    const o = a.createOscillator();
+    const g = a.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f, t);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(gain, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(a.destination);
+    o.start(t); o.stop(t + dur + 0.01);
+  } catch (_) {}
+}
+
+function chime() {
+  beep(1047, 0.12, 0.14, 0);       // C6
+  beep(1319, 0.12, 0.14, 0.07);    // E6
+  beep(1568, 0.22, 0.16, 0.14);    // G6 — crisp ascending triad
+}
+
+// ── Notifications ──
+function notify(title, body) {
+  if (!cfg.notify) return;
+  if (!('Notification' in window)) return;
+  const send = () => { new Notification(title, { body, icon: '🍅' }); };
+  if (Notification.permission === 'granted') send();
+  else if (Notification.permission === 'default') {
+    Notification.requestPermission().then(p => { if (p === 'granted') send(); });
+  }
+}
+
+// ── Ring ──
+function updateRing() {
+  const pct = S.remain / S.total;
+  ringFg.setAttribute('stroke-dashoffset', CIRC * (1 - pct));
+  // 端点圆点
+  if (pct > 0.005 && pct < 0.995) {
+    const angleRad = 2 * Math.PI * pct;
+    const cx = 125, cy = 125;
+    const dotX = cx + R * Math.sin(angleRad);
+    const dotY = cy - R * Math.cos(angleRad);
+    ringDot.setAttribute('cx', dotX);
+    ringDot.setAttribute('cy', dotY);
+    ringDot.setAttribute('r', '6');
+    ringDot.style.display = '';
+  } else {
+    ringDot.style.display = 'none';
+  }
+}
+
+function updateDigits() {
+  const m = Math.floor(S.remain / 60);
+  const s = S.remain % 60;
+  digits.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  updateRing();
+  updateDocTitle();
+}
+
+// ── Mode ──
+const MODES = {
+  work:       { emoji: '🔴', label: '专注工作', css: 'is-work', unit: '分钟' },
+  shortBreak: { emoji: '🟢', label: '短休息',   css: 'is-shortBreak', unit: '秒' },
+  longBreak:  { emoji: '🔵', label: '长休息',   css: 'is-longBreak', unit: '秒' },
+};
+
+function applyMode() {
+  const m = MODES[S.mode];
+  body.className = `${m.css}`;
+  body.setAttribute('data-theme', cfg.theme);
+  tag.textContent = `${m.emoji} ${m.label}`;
+  tag.className = `mode-tag ${S.mode}`;
+  unit.textContent = m.unit;
+  if (S.mode === 'work') {
+    hint.textContent = `第 ${S.cycle + 1} / ${cfg.interval} 个番茄`;
+  } else {
+    hint.textContent = S.mode === 'shortBreak' ? '休息一下 ☕' : '享受长休息 🌿';
+  }
+  if (!S.running) btnPlay.textContent = '▶ 开始';
+}
+
+function setPhaseDuration() {
+  const map = { work: cfg.work, shortBreak: cfg.short, longBreak: cfg.long };
+  S.total = map[S.mode] * 60;
+  S.remain = S.total;
+}
+
+// ── Tomatoes ──
+function drawTomatoes() {
+  let h = '';
+  for (let i = 0; i < cfg.interval; i++) {
+    h += `<span class="${i < S.cycle ? 'earned' : ''}">🍅</span>`;
+  }
+  toRow.innerHTML = h;
+}
+
+// ── Title ──
+function updateDocTitle() {
+  const m = Math.floor(S.remain / 60);
+  const s = S.remain % 60;
+  const t = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const icon = S.running ? '▶' : '⏸';
+  const lbl = MODES[S.mode].label;
+  document.title = `${icon} ${t} - ${lbl} | 🍅 番茄钟`;
+}
+
+function updateStats() {
+  stats.textContent = `今日完成 ${S.today} 个番茄 🍅`;
+}
+
+function refreshUI() {
+  updateDigits();
+  applyMode();
+  drawTomatoes();
+  updateStats();
+  updateDocTitle();
+}
+
+// ── Card glow (代替闪烁) ──
+function glowCard() {
+  cardEl.classList.add('glow');
+  setTimeout(() => cardEl.classList.remove('glow'), 500);
+}
+
+// ── Timer ──
+function tick() {
+  if (S.remain <= 0) {
+    pause();
+    finishPhase();
+    return;
+  }
+  S.remain--;
+  updateDigits();
+  // 最后5秒 pulse
+  if (S.remain <= 5 && S.remain >= 1) {
+    ringFg.style.opacity = (S.remain % 2 === 0) ? '1' : '0.6';
+  } else {
+    ringFg.style.opacity = '1';
+  }
+}
+
+function play() {
+  if (S.running) return;
+  S.running = true;
+  btnPlay.textContent = '⏸ 暂停';
+  if (cfg.sound && ctx && ctx.state === 'suspended') ctx.resume();
+  S.tid = setInterval(tick, 1000);
+  updateDocTitle();
+}
+
+function pause() {
+  if (!S.running) return;
+  S.running = false;
+  btnPlay.textContent = '▶ 继续';
+  clearInterval(S.tid);
+  S.tid = null;
+  ringFg.style.opacity = '1';
+  updateDocTitle();
+}
+
+function toggle() {
+  S.running ? pause() : play();
+}
+
+function reset() {
+  pause();
+  S.running = false;
+  S.remain = S.total;
+  btnPlay.textContent = '▶ 开始';
+  ringFg.style.opacity = '1';
+  refreshUI();
+}
+
+function skip() {
+  pause();
+  S.remain = 0;
+  finishPhase();
+}
+
+function finishPhase() {
+  chime();
+  glowCard();
+
+  if (S.mode === 'work') {
+    S.today++;
+    S.cycle++;
+    S.pomodoroCompletedThisTick = true;
+    saveToday();
+    notify('🍅 番茄完成！', `今日已完成 ${S.today} 个番茄，休息一下吧~`);
+    if (S.cycle >= cfg.interval) {
+      S.mode = 'longBreak';
+      notify('🔵 长休息', `完成了 ${cfg.interval} 个番茄，享受 ${cfg.long} 分钟长休息！`);
+    } else {
+      S.mode = 'shortBreak';
+      notify('🟢 短休息', `休息 ${cfg.short} 分钟~`);
+    }
+  } else {
+    S.pomodoroCompletedThisTick = false;
+    if (S.mode === 'longBreak') S.cycle = 0;
+    S.mode = 'work';
+    notify('🔴 休息结束', `开始第 ${S.cycle + 1} 个番茄，加油！`);
+  }
+
+  ringFg.style.opacity = '1';
+  setPhaseDuration();
+  S.running = false;
+  btnPlay.textContent = '▶ 开始';
+  refreshUI();
+
+  if (navigator.vibrate) navigator.vibrate([150, 80, 150]);
+}
+
+// ── Settings sync ──
+function bindCfgInput(id, key, opts = {}) {
+  const el = $(id);
+  el.addEventListener('change', () => {
+    let v = el.type === 'checkbox' ? el.checked : parseInt(el.value, 10);
+    if (el.type !== 'checkbox') {
+      v = Math.max(opts.min || 1, Math.min(opts.max || 120, v || opts.def || 25));
+      el.value = v;
+    }
+    cfg[key] = v;
+    saveCfg();
+    if (!S.running && opts.affectsMode && S.mode === opts.affectsMode) {
+      setPhaseDuration();
+      updateDigits();
+    }
+    if (key === 'interval') {
+      if (S.cycle >= cfg.interval) S.cycle = 0;
+      drawTomatoes();
+    }
+  });
+}
+
+function setupSettings() {
+  // Sync DOM ↔ cfg
+  $('cfgWork').value     = cfg.work;
+  $('cfgShort').value    = cfg.short;
+  $('cfgLong').value     = cfg.long;
+  $('cfgInterval').value = cfg.interval;
+  $('cfgNotify').checked = cfg.notify;
+  $('cfgSound').checked  = cfg.sound;
+
+  bindCfgInput('cfgWork',     'work',     { min:1, max:120, affectsMode:'work' });
+  bindCfgInput('cfgShort',    'short',    { min:1, max:30,  affectsMode:'shortBreak' });
+  bindCfgInput('cfgLong',     'long',     { min:1, max:60,  affectsMode:'longBreak' });
+  bindCfgInput('cfgInterval', 'interval', { min:2, max:10 });
+  bindCfgInput('cfgNotify',   'notify');
+  bindCfgInput('cfgSound',    'sound');
+
+  // Theme swatches
+  document.querySelectorAll('.theme-swatch').forEach(el => {
+    el.classList.toggle('active', el.dataset.theme === cfg.theme);
+    el.addEventListener('click', () => applyTheme(el.dataset.theme));
+  });
+}
+
+// ── Events ──
+btnPlay.addEventListener('click', toggle);
+$('btnReset').addEventListener('click', reset);
+$('btnSkip').addEventListener('click', skip);
+$('btnCog').addEventListener('click', () => $('panel').classList.toggle('open'));
+
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.code === 'Space') { e.preventDefault(); toggle(); }
+  if (e.code === 'KeyR')  { e.preventDefault(); reset(); }
+  if (e.code === 'KeyS')  { e.preventDefault(); skip(); }
+});
+
+// ── Visibility (prevent drift) ──
+let hiddenAt = null;
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    hiddenAt = Date.now();
+  } else if (hiddenAt && S.running) {
+    const elapsed = Math.floor((Date.now() - hiddenAt) / 1000);
+    if (elapsed > 0 && elapsed < S.total) {
+      S.remain = Math.max(0, S.remain - elapsed);
+      updateDigits();
+      if (S.remain <= 0) finishPhase();
+    }
+    hiddenAt = null;
+  }
+});
+
+// ── Boot ──
+function boot() {
+  applyTheme(cfg.theme);
+  setupSettings();
+  setPhaseDuration();
+  refreshUI();
+  console.log('🍅 番茄钟就绪 — ' +
+    ['朱砂红','海棠红','翠微绿','琉璃蓝'][THEME_IDS.indexOf(cfg.theme)] + '主题');
+  console.log('  空格 = 开始/暂停  |  R = 重置  |  S = 跳过');
+}
+boot();
+</script>
+</body>
+</html>

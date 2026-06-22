@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+*.log
+pomodoro_error.log
